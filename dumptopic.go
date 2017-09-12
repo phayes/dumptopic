@@ -1,7 +1,6 @@
 package dumptopic
 
 import (
-	"strconv"
 	"sync"
 
 	"github.com/Shopify/sarama"
@@ -39,8 +38,6 @@ func GetChannel(brokers []string, topic string, config *sarama.Config) (chan<- *
 		wg.Add(1)
 		go func(partition int32) {
 			defer wg.Done()
-
-			partitionName := "partition-" + strconv.Itoa(int(partition))
 
 			offset, err := client.GetOffset(topic, partition, sarama.OffsetNewest)
 			if err != nil {
