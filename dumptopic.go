@@ -8,7 +8,7 @@ import (
 
 // GetChannel returns a channel that can be read to completion
 // The channel will be closed when all the messages have been read up to the highwater mark.
-func GetChannel(brokers []string, topic string, config *sarama.Config) (chan<- *sarama.ConsumerMessage, error) {
+func GetChannel(brokers []string, topic string, config *sarama.Config) (<-chan *sarama.ConsumerMessage, error) {
 
 	// Client
 	client, err := sarama.NewClient(brokers, config)
@@ -33,7 +33,7 @@ func GetChannel(brokers []string, topic string, config *sarama.Config) (chan<- *
 	var wg sync.WaitGroup
 
 	// Loop through the partitions and start reading
-	messagechan := make(chan<- *sarama.ConsumerMessage)
+	messagechan := make(chan *sarama.ConsumerMessage)
 	for _, partition := range partitions {
 		wg.Add(1)
 		go func(partition int32) {
