@@ -15,18 +15,19 @@ func GetChannel(brokers []string, topic string, config *sarama.Config) (<-chan *
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Consumer
 	consumer, err := sarama.NewConsumerFromClient(client)
 	if err != nil {
+		client.Close()
 		return nil, err
 	}
-	defer consumer.Close()
 
 	// Get the partitions
 	partitions, err := client.Partitions(topic)
 	if err != nil {
+		consumer.Close()
+		client.Close()
 		return nil, err
 	}
 
@@ -73,6 +74,8 @@ func GetChannel(brokers []string, topic string, config *sarama.Config) (<-chan *
 	go func() {
 		wg.Wait()
 		close(messagechan)
+		consumer.Close()
+		client.Close()
 	}()
 
 	return messagechan, nil
