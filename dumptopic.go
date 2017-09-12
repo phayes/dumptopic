@@ -71,12 +71,13 @@ func GetChannel(brokers []string, topic string, config *sarama.Config) (chan<- *
 			}
 
 		}(partition)
-
-		go func() {
-			wg.Wait()
-			close(messagechan)
-		}()
-
-		return messagechan, nil
 	}
+
+	go func() {
+		wg.Wait()
+		close(messagechan)
+	}()
+
+	return messagechan, nil
+
 }
