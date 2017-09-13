@@ -6,15 +6,25 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+// GetChanelFromClient returns a channel that can be read to completion
+// The channel will be closed when all the messages have been read up to the highwater mark.
+func GetChanelFromClient(topic string, client sarama.Client) (<-chan *sarama.ConsumerMessage, error) {
+	return do(topic, client, false)
+}
+
 // GetChannel returns a channel that can be read to completion
 // The channel will be closed when all the messages have been read up to the highwater mark.
 func GetChannel(brokers []string, topic string, config *sarama.Config) (<-chan *sarama.ConsumerMessage, error) {
-
 	// Client
 	client, err := sarama.NewClient(brokers, config)
 	if err != nil {
 		return nil, err
 	}
+
+	return do(topic, client, true)
+}
+
+func do(topic string, client sarama.Client, closeclient bool) (<-chan *sarama.ConsumerMessage, error) {
 
 	// Consumer
 	consumer, err := sarama.NewConsumerFromClient(client)
@@ -75,9 +85,10 @@ func GetChannel(brokers []string, topic string, config *sarama.Config) (<-chan *
 		wg.Wait()
 		close(messagechan)
 		consumer.Close()
-		client.Close()
+		if closeclient {
+			client.Close()
+		}
 	}()
 
 	return messagechan, nil
-
 }
