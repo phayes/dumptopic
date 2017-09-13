@@ -6,9 +6,9 @@ import (
 	"github.com/Shopify/sarama"
 )
 
-// GetChanelFromClient returns a channel that can be read to completion
+// GetChannelFromClient returns a channel that can be read to completion
 // The channel will be closed when all the messages have been read up to the highwater mark.
-func GetChanelFromClient(topic string, client sarama.Client) (<-chan *sarama.ConsumerMessage, error) {
+func GetChannelFromClient(topic string, client sarama.Client) (<-chan *sarama.ConsumerMessage, error) {
 	return do(topic, client, false)
 }
 
